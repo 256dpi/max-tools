@@ -1,0 +1,9 @@
+.PHONY: ewma mqtt
+
+check:
+	go fmt ./...
+	go vet ./...
+	golint ./...
+
+ewma:
+	cd ewma; maxgo -name ewma -install max-tools
