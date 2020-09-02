@@ -7,3 +7,4 @@ check:
 
 ewma:
 	cd ewma; maxgo -name ewma -install max-tools
+	cd perftrack; maxgo -name perftrack -install max-tools
