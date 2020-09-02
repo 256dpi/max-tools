@@ -19,7 +19,7 @@ type object struct {
 // TODO: Support Update with time.
 
 func (o *object) Init(obj *max.Object, args []max.Atom) bool {
-	// add inlet and outlets
+	// add inlet and outlet
 	o.in = obj.Inlet(max.Any, "number to average", true)
 	o.out = obj.Outlet(max.Float, "average result")
 
