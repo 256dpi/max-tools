@@ -7,6 +7,8 @@ import (
 	"github.com/256dpi/max-go"
 
 	"github.com/cloudflare/golibs/ewma"
+
+	"github.com/256dpi/max-tools/utils"
 )
 
 type object struct {
@@ -26,7 +28,7 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 	// get half life
 	halfLife := time.Second
 	if len(args) > 0 {
-		hl, _ := args[0].(int64)
+		hl := utils.Int(args[0])
 		if hl > 0 {
 			halfLife = time.Duration(hl) * time.Millisecond
 		}
@@ -39,29 +41,21 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 }
 
 func (o *object) Handle(_ int, _ string, data []max.Atom) {
-	// get value
-	value := 0.0
-	if len(data) > 0 {
-		switch v := data[0].(type) {
-		case int64:
-			value = float64(v)
-		case float64:
-			value = v
-		}
-	}
-
 	// acquire mutex
 	o.mutex.Lock()
+	defer o.mutex.Unlock()
+
+	// get value
+	var value float64
+	if len(data) > 0 {
+		value = utils.Float(data[0])
+	}
 
 	// update ewma
 	o.ewma.UpdateNow(value)
-	cur := o.ewma.Current
-
-	// release mutex
-	o.mutex.Unlock()
 
 	// send output
-	o.out.Float(cur)
+	o.out.Float(o.ewma.Current)
 }
 
 func (o *object) Free() {}
