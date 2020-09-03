@@ -10,15 +10,17 @@ import (
 )
 
 type object struct {
-	leap  float64
-	decay float64
-	debug bool
-	in    *max.Inlet
-	out   *max.Outlet
-	time  float64
-	pos   mgl64.Vec3
-	rot   mgl64.Quat
-	mutex sync.Mutex
+	debug   bool
+	inGeo   *max.Inlet
+	inLeap  *max.Inlet
+	inDecay *max.Inlet
+	outGeo  *max.Outlet
+	leap    float64
+	decay   float64
+	time    float64
+	pos     mgl64.Vec3
+	rot     mgl64.Quat
+	mutex   sync.Mutex
 }
 
 func (o *object) Init(obj *max.Object, args []max.Atom) bool {
@@ -39,17 +41,33 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 		o.debug = utils.Int(args[2]) == 1
 	}
 
-	// add inlet and outlet
-	o.in = obj.Inlet(max.Any, "t, px, py, pz, rw, rx, ry, rz", true)
-	o.out = obj.Outlet(max.Any, "t, px, py, pz, rw, rx, ry, rz")
+	// add inlet and outlets
+	o.inGeo = obj.Inlet(max.Any, "t, px, py, pz, rw, rx, ry, rz", true)
+	o.inLeap = obj.Inlet(max.Float, "leap", false)
+	o.inDecay = obj.Inlet(max.Float, "decay", false)
+	o.outGeo = obj.Outlet(max.Any, "t, px, py, pz, rw, rx, ry, rz")
 
 	return true
 }
 
-func (o *object) Handle(_ int, _ string, data []max.Atom) {
+func (o *object) Handle(inlet int, _ string, data []max.Atom) {
 	// acquire mutex
 	o.mutex.Lock()
 	defer o.mutex.Unlock()
+
+	// check inlet
+	switch inlet {
+	case 0:
+		// continue
+	case 1:
+		o.leap = utils.Float(data)
+		return
+	case 2:
+		o.decay = utils.Float(data)
+		return
+	default:
+		panic("invalid inlet")
+	}
 
 	// check data
 	if len(data) != 8 {
@@ -139,7 +157,7 @@ func (o *object) Handle(_ int, _ string, data []max.Atom) {
 	}
 
 	// send output
-	o.out.List([]max.Atom{
+	o.outGeo.List([]max.Atom{
 		pTime,
 		pPos.X(), pPos.Y(), pPos.Z(),
 		pRot.W, pRot.X(), pRot.Y(), pRot.Z(),
