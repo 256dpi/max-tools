@@ -12,6 +12,7 @@ import (
 type object struct {
 	leap  float64
 	decay float64
+	debug bool
 	in    *max.Inlet
 	out   *max.Outlet
 	time  float64
@@ -31,6 +32,11 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 	// get decay
 	if len(args) > 1 {
 		o.decay = utils.Float(args[1])
+	}
+
+	// get debug
+	if len(args) > 2 {
+		o.debug = utils.Int(args[2]) == 1
 	}
 
 	// add inlet and outlet
@@ -67,7 +73,10 @@ func (o *object) Handle(_ int, _ string, data []max.Atom) {
 	rz := utils.Float(data[7])
 	rot := mgl64.Quat{W: rw, V: mgl64.Vec3{rx, ry, rz}}
 
-	max.Pretty("input", time, pos, rot)
+	// debug
+	if o.debug {
+		max.Pretty("input", time, pos, rot)
+	}
 
 	// set values and return if zero
 	if o.time == 0 {
@@ -100,17 +109,34 @@ func (o *object) Handle(_ int, _ string, data []max.Atom) {
 	dPos := pos.Sub(o.pos)
 	dRot := rot.Sub(o.rot)
 
-	max.Pretty("diff", dTime, dPos, dRot)
+	// debug
+	if o.debug {
+		max.Pretty("diff", dTime, dPos, dRot)
+	}
 
-	// get factor
-	fac := 1.0 / dTime * (dTime + o.leap)
+	// prepare output
+	pTime := time
+	pPos := pos
+	pRot := rot
 
-	// predict position and rotation
-	pTime := o.time + dTime*fac
-	pPos := o.pos.Add(dPos.Mul(fac))
-	pRot := o.rot.Add(dRot.Mul(mgl64.Quat{W: fac}))
+	// continue if there is positive time difference
+	if dTime > 0 {
+		// get factor
+		fac := 1.0 / dTime * (dTime + o.leap)
 
-	max.Pretty("pred", fac, pTime, pPos, pRot)
+		// continue if factor is bigger than one
+		if fac > 1 {
+			// predict position and rotation
+			pTime = o.time + dTime*fac
+			pPos = o.pos.Add(dPos.Mul(fac))
+			pRot = o.rot.Add(dRot.Mul(mgl64.Quat{W: fac}))
+
+			// debug
+			if o.debug {
+				max.Pretty("pred", fac, pTime, pPos, pRot)
+			}
+		}
+	}
 
 	// send output
 	o.out.List([]max.Atom{

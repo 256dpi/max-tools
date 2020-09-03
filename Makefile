@@ -1,4 +1,4 @@
-.PHONY: ewma mqtt
+.PHONY: ewma perftrack
 
 check:
 	go fmt ./...
@@ -6,5 +6,7 @@ check:
 	golint ./...
 
 ewma:
-	cd ewma; maxgo -name ewma -install max-tools
-	cd perftrack; maxgo -name perftrack -install max-tools
+	cd ewma; maxgo -name ewma -cross -install max-tools
+
+perftrack:
+	cd perftrack; maxgo -name perftrack -cross -install max-tools
