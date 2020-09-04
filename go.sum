@@ -1,5 +1,5 @@
-github.com/256dpi/max-go v0.5.0 h1:WLDEEzatPqQ803zSKOQlPH/XeGbOf5CfG8WQUv4EoTo=
-github.com/256dpi/max-go v0.5.0/go.mod h1:O7oxxEyFoWxQC2Q0Dg/ZHYWWVxu344BGBN97l/3s50M=
+github.com/256dpi/max-go v0.5.1 h1:78TvKKhEMnd26NjhveGtD7oXWQ0G+DLhe6Kz8L1tpcc=
+github.com/256dpi/max-go v0.5.1/go.mod h1:O7oxxEyFoWxQC2Q0Dg/ZHYWWVxu344BGBN97l/3s50M=
 github.com/cloudflare/golibs v0.0.0-20200820181549-b904ada5be6e h1:bfqQ0m8+zard1BOYZyp/gHYxaInU61Xyc4ZEwvHXFms=
 github.com/cloudflare/golibs v0.0.0-20200820181549-b904ada5be6e/go.mod h1:HlgKKR8V5a1wroIDDIz3/A+T+9Janfq+7n1P5sEFdi0=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
