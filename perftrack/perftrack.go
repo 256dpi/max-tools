@@ -171,10 +171,6 @@ func (o *object) Handle(inlet int, _ string, data []max.Atom) {
 
 func (o *object) Free() {}
 
-func init() {
-	max.Register("perftrack", &object{})
-}
-
 func main() {
-	// not called
+	max.Register("perftrack", &object{})
 }

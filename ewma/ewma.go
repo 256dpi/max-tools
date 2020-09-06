@@ -60,10 +60,6 @@ func (o *object) Handle(_ int, _ string, data []max.Atom) {
 
 func (o *object) Free() {}
 
-func init() {
-	max.Register("ewma", &object{})
-}
-
 func main() {
-	// not called
+	max.Register("ewma", &object{})
 }
