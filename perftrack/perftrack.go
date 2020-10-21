@@ -15,6 +15,7 @@ type object struct {
 	inLeap    *max.Inlet
 	inFilter1 *max.Inlet
 	inFilter2 *max.Inlet
+	inDebug   *max.Inlet
 	outGeo    *max.Outlet
 	leap      float64
 	filter1   float64
@@ -55,6 +56,7 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 	o.inLeap = obj.Inlet(max.Any, "leap", false)
 	o.inFilter1 = obj.Inlet(max.Any, "filter1 (input)", false)
 	o.inFilter2 = obj.Inlet(max.Any, "filter2 (speed)", false)
+	o.inDebug = obj.Inlet(max.Any, "debug", false)
 	o.outGeo = obj.Outlet(max.Any, "t, px, py, pz, rw, rx, ry, rz")
 
 	return true
@@ -77,6 +79,9 @@ func (o *object) Handle(inlet int, _ string, data []max.Atom) {
 		return
 	case 3:
 		o.filter2 = utils.Float(data[0])
+		return
+	case 4:
+		o.debug = utils.Int(data[0]) == 1
 		return
 	default:
 		max.Error("invalid inlet")
