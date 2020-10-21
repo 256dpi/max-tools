@@ -165,7 +165,7 @@ func (o *object) Handle(inlet int, _ string, data []max.Atom) {
 		// predict position and rotation
 		pTime = time + o.leap
 		pPos = pos.Add(posSpeed.Mul(o.leap))
-		pRot = rot.Add(rotSpeed.Scale(o.leap))
+		pRot = rot.Add(rotSpeed.Scale(o.leap)).Normalize()
 
 		// debug
 		if o.debug {
