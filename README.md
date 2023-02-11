@@ -4,4 +4,5 @@
 
 ## Externals
 
-- `ewma`: Exponentially Weighted Moving Average algorithm. 
+- `ewma`: Exponentially Weighted Moving Average algorithm.
+- `perftrack`: Forward prediction of tracking system data. 
