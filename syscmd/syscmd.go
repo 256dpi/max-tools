@@ -17,14 +17,14 @@ import (
 type object struct {
 	in     *max.Inlet
 	out    *max.Outlet
-	stat   *max.Outlet
+	status *max.Outlet
 	done   *max.Outlet
 	cmd    string
 	wd     string
+	ref    *exec.Cmd
 	stdin  io.WriteCloser
 	stdout io.Reader
-	ref    *exec.Cmd
-	kill   bool
+	killed bool
 	mutex  sync.Mutex
 }
 
@@ -32,7 +32,7 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 	// add inlet and outlets
 	o.in = obj.Inlet(max.Any, "input command", true)
 	o.out = obj.Outlet(max.Any, "output as list")
-	o.stat = obj.Outlet(max.Int, "status of command")
+	o.status = obj.Outlet(max.Int, "status of command")
 	o.done = obj.Outlet(max.Bang, "bang when done")
 
 	// set command
@@ -52,8 +52,6 @@ func (o *object) Handle(_ int, msg string, data []max.Atom) {
 	// acquire mutex
 	o.mutex.Lock()
 	defer o.mutex.Unlock()
-
-	max.Pretty("handle", msg, data)
 
 	// handle message
 	switch msg {
@@ -86,7 +84,7 @@ func (o *object) Handle(_ int, msg string, data []max.Atom) {
 		}
 	case "write":
 		// TODO: Write to command
-	case "enter":
+	case "writeln":
 		// TODO: Send enter to command.
 	case "close":
 		// TODO: Close input.
@@ -129,7 +127,8 @@ func (o *object) start() {
 	cmd := exec.Command(bin, args...)
 	cmd.Dir = o.wd
 
-	max.Pretty(cmd)
+	// log command
+	max.Log("running command: %s %v", cmd.Path, cmd.Args[1:])
 
 	// get input pipe
 	stdin, err := cmd.StdinPipe()
@@ -156,14 +155,15 @@ func (o *object) start() {
 	o.ref = cmd
 	o.stdin = stdin
 	o.stdout = stdout
+	o.killed = false
 
 	// run handler
 	go o.handler()
 }
 
 func (o *object) handler() {
-	// set stat
-	o.stat.Int(1)
+	// set status
+	o.status.Int(1)
 
 	// scan output
 	scanner := bufio.NewScanner(o.stdout)
@@ -171,27 +171,21 @@ func (o *object) handler() {
 		o.out.Any(scanner.Text(), nil)
 	}
 
-	// check error
-	err := scanner.Err()
-	if err != nil && err != io.EOF {
-		max.Error("command failed: %s", err.Error())
-		_ = o.ref.Process.Kill()
-	}
-
 	// await exit
-	err = o.ref.Wait()
-	if err != nil && err != io.EOF {
-		max.Error("command failed: %s", err.Error())
-		_ = o.ref.Process.Kill()
-	}
-
-	// set stat and done
-	o.stat.Int(0)
-	o.done.Bang()
+	err := o.ref.Wait()
 
 	// acquire mutex
 	o.mutex.Lock()
 	defer o.mutex.Unlock()
+
+	// handle error
+	if err != nil && !o.killed {
+		max.Error("command failed: %s", err.Error())
+	}
+
+	// set status and done
+	o.status.Int(0)
+	o.done.Bang()
 
 	// clear state
 	o.ref = nil
@@ -205,6 +199,9 @@ func (o *object) stop() {
 		max.Error("already stopped")
 		return
 	}
+
+	// set flag
+	o.killed = true
 
 	// kill command
 	err := o.ref.Process.Kill()
