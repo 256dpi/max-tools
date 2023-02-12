@@ -1,4 +1,4 @@
-.PHONY: ewma perftrack
+.PHONY: ewma perftrack syscmd
 
 check:
 	go fmt ./...
@@ -10,3 +10,6 @@ ewma:
 
 perftrack:
 	cd perftrack; maxgo -name perftrack -cross -install max-tools
+
+syscmd:
+	cd syscmd; maxgo -name syscmd -cross -install max-tools

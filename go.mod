@@ -3,9 +3,10 @@ module github.com/256dpi/max-tools
 go 1.18
 
 require (
-	github.com/256dpi/max-go v0.6.2
+	github.com/256dpi/max-go v0.6.3
 	github.com/cloudflare/golibs v0.0.0-20200820181549-b904ada5be6e
 	github.com/go-gl/mathgl v0.0.0-20190713194549-592312d8590a
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 )
 
 require (

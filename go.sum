@@ -1,10 +1,12 @@
-github.com/256dpi/max-go v0.6.2 h1:Gcxuhu2EGV0feZ2kGnEiivIPbvNvok6YvUmOr93wjUg=
-github.com/256dpi/max-go v0.6.2/go.mod h1:fC/k+bxnHzzlUIoUJYASp44GsOBLrIDVT8jj3B8LBZ8=
+github.com/256dpi/max-go v0.6.3 h1:j1DaQDbJgH65vd4cLD4rAseLlfOwdUEbkRspb+Sfstc=
+github.com/256dpi/max-go v0.6.3/go.mod h1:fC/k+bxnHzzlUIoUJYASp44GsOBLrIDVT8jj3B8LBZ8=
 github.com/cloudflare/golibs v0.0.0-20200820181549-b904ada5be6e h1:bfqQ0m8+zard1BOYZyp/gHYxaInU61Xyc4ZEwvHXFms=
 github.com/cloudflare/golibs v0.0.0-20200820181549-b904ada5be6e/go.mod h1:HlgKKR8V5a1wroIDDIz3/A+T+9Janfq+7n1P5sEFdi0=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/go-gl/mathgl v0.0.0-20190713194549-592312d8590a h1:yoAEv7yeWqfL/l9A/J5QOndXIJCldv+uuQB1DSNQbS0=
 github.com/go-gl/mathgl v0.0.0-20190713194549-592312d8590a/go.mod h1:yhpkQzEiH9yPyxDUGzkmgScbaBVlhC06qodikEM0ZwQ=
+github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 h1:El6M4kTTCOh6aBiKaUGG7oYTSPP8MxqL4YI3kZKwcP4=
+github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510/go.mod h1:pupxD2MaaD3pAXIBCelhxNneeOaAeabZDe5s4K6zSpQ=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
