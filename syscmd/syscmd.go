@@ -11,9 +11,6 @@ import (
 	"github.com/google/shlex"
 )
 
-// TODO: Support line as single symbol mode?
-// TODO: Support merging stdout with stderr?
-
 type object struct {
 	in     *max.Inlet
 	out    *max.Outlet
@@ -56,8 +53,6 @@ func (o *object) Handle(_ int, msg string, data []max.Atom) {
 	// handle message
 	switch msg {
 	case "cmd":
-		// TODO: Handle lists?
-
 		// set command
 		if len(data) > 0 {
 			o.cmd, _ = data[0].(string)
@@ -83,11 +78,21 @@ func (o *object) Handle(_ int, msg string, data []max.Atom) {
 			}
 		}
 	case "write":
-		// TODO: Write to command
+		// write string
+		if len(data) > 0 {
+			if str, ok := data[0].(string); ok {
+				o.write(str)
+			}
+		}
 	case "writeln":
-		// TODO: Send enter to command.
+		// write string
+		if len(data) > 0 {
+			if str, ok := data[0].(string); ok {
+				o.write(str + "\n")
+			}
+		}
 	case "close":
-		// TODO: Close input.
+		o.close()
 	}
 }
 
@@ -144,6 +149,9 @@ func (o *object) start() {
 		return
 	}
 
+	// use output also for stderr
+	cmd.Stderr = cmd.Stdout
+
 	// start command
 	err = cmd.Start()
 	if err != nil {
@@ -159,6 +167,51 @@ func (o *object) start() {
 
 	// run handler
 	go o.handler()
+}
+
+func (o *object) write(str string) {
+	// check if started
+	if o.ref == nil {
+		max.Error("not started")
+		return
+	}
+
+	// check stdin
+	if o.stdin == nil {
+		max.Error("already closed")
+		return
+	}
+
+	// write
+	_, err := o.stdin.Write([]byte(str))
+	if err != nil {
+		max.Error("write failed: %s", err.Error())
+		return
+	}
+}
+
+func (o *object) close() {
+	// check if started
+	if o.ref == nil {
+		max.Error("not started")
+		return
+	}
+
+	// check stdin
+	if o.stdin == nil {
+		max.Error("already closed")
+		return
+	}
+
+	// close
+	err := o.stdin.Close()
+	if err != nil {
+		max.Error("close failed: %s", err.Error())
+		return
+	}
+
+	// clear
+	o.stdin = nil
 }
 
 func (o *object) handler() {
