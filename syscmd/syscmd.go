@@ -131,6 +131,7 @@ func (o *object) start() {
 	// prepare command
 	cmd := exec.Command(bin, args...)
 	cmd.Dir = o.wd
+	cmd.SysProcAttr = sysProcAttrs()
 
 	// log command
 	max.Log("running command: %s %v", cmd.Path, cmd.Args[1:])
