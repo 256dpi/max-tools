@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"os/exec"
+	"strings"
 	"sync"
 
 	"github.com/256dpi/max-go"
@@ -222,7 +223,14 @@ func (o *object) handler() {
 	// scan output
 	scanner := bufio.NewScanner(o.stdout)
 	for scanner.Scan() {
-		o.out.Any(scanner.Text(), nil)
+		// get line
+		line := scanner.Text()
+
+		// replace tabs
+		line = strings.ReplaceAll(line, "\t", "    ")
+
+		// emit line
+		o.out.Any(line, nil)
 	}
 
 	// await exit
