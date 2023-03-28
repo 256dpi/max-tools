@@ -258,7 +258,6 @@ func (o *object) handler() {
 func (o *object) stop() {
 	// check if stopped
 	if o.ref == nil {
-		max.Error("already stopped")
 		return
 	}
 
