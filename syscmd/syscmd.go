@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"os/exec"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -17,7 +18,7 @@ type object struct {
 	out    *max.Outlet
 	status *max.Outlet
 	done   *max.Outlet
-	cmd    string
+	cmd    []string
 	wd     string
 	ref    *exec.Cmd
 	stdin  io.WriteCloser
@@ -35,7 +36,11 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 
 	// set command
 	if len(args) > 0 {
-		o.cmd, _ = args[0].(string)
+		var err error
+		o.cmd, err = shlex.Split(args[0].(string))
+		if err != nil {
+			max.Error("failed to split command: %s", err.Error())
+		}
 	}
 
 	// set working directory
@@ -56,7 +61,24 @@ func (o *object) Handle(_ int, msg string, data []max.Atom) {
 	case "cmd":
 		// set command
 		if len(data) > 0 {
-			o.cmd, _ = data[0].(string)
+			var err error
+			o.cmd, err = shlex.Split(data[0].(string))
+			if err != nil {
+				max.Error("failed to split command: %s", err.Error())
+			}
+		}
+	case "args":
+		// set command
+		o.cmd = nil
+		for _, value := range data {
+			switch v := value.(type) {
+			case string:
+				o.cmd = append(o.cmd, v)
+			case int64:
+				o.cmd = append(o.cmd, strconv.FormatInt(v, 10))
+			case float64:
+				o.cmd = append(o.cmd, strconv.FormatFloat(v, 'f', -1, 64))
+			}
 		}
 	case "wd":
 		// set working directory
@@ -110,23 +132,16 @@ func (o *object) start() {
 	}
 
 	// check command
-	if o.cmd == "" {
+	if len(o.cmd) == 0 {
 		max.Error("missing command")
 		return
 	}
 
-	// split command
-	cmdList, err := shlex.Split(o.cmd)
-	if err != nil {
-		max.Error("failed to split command: %s", err.Error())
-		return
-	}
-
 	// get binary and args
-	bin := cmdList[0]
+	bin := o.cmd[0]
 	var args []string
-	if len(cmdList) > 1 {
-		args = cmdList[1:]
+	if len(o.cmd) > 1 {
+		args = o.cmd[1:]
 	}
 
 	// prepare command
