@@ -11,6 +11,7 @@ import (
 	"github.com/256dpi/max-go"
 	"github.com/256dpi/max-tools/utils"
 	"github.com/google/shlex"
+	"github.com/kr/pretty"
 )
 
 type object struct {
@@ -150,7 +151,7 @@ func (o *object) start() {
 	cmd.SysProcAttr = sysProcAttrs()
 
 	// log command
-	max.Log("running command: %s %v", cmd.Path, cmd.Args[1:])
+	max.Log("running command: %s %v", cmd.Path, pretty.Sprint(cmd.Args[1:]))
 
 	// get input pipe
 	stdin, err := cmd.StdinPipe()
