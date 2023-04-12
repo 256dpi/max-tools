@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/256dpi/max-go"
-
 	"github.com/cloudflare/golibs/ewma"
 
 	"github.com/256dpi/max-tools/utils"

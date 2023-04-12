@@ -9,9 +9,10 @@ import (
 	"sync"
 
 	"github.com/256dpi/max-go"
-	"github.com/256dpi/max-tools/utils"
 	"github.com/google/shlex"
 	"github.com/kr/pretty"
+
+	"github.com/256dpi/max-tools/utils"
 )
 
 type object struct {
