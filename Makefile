@@ -1,4 +1,4 @@
-.PHONY: ewma perftrack syscmd
+.PHONY: ewma perftrack syscmd iasnet
 
 check:
 	go fmt ./...
@@ -13,3 +13,6 @@ perftrack:
 
 syscmd:
 	cd syscmd; maxgo -name syscmd -cross -install max-tools
+
+iasnet:
+	cd iasnet; maxgo -name iasnet -cross -install max-tools
