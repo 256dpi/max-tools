@@ -5,8 +5,6 @@ import (
 
 	"github.com/256dpi/max-go"
 	"github.com/go-gl/mathgl/mgl64"
-
-	"github.com/256dpi/max-tools/utils"
 )
 
 type object struct {
@@ -127,7 +125,7 @@ func (o *object) Handle(inlet int, _ string, data []max.Atom) {
 
 	// smooth position and rotation
 	if o.filter1 > 0 {
-		pos = utils.LerpVec3(o.pos, pos, o.filter1)
+		pos = lerpVec3(o.pos, pos, o.filter1)
 		rot = mgl64.QuatSlerp(o.rot, rot, o.filter1)
 	}
 
@@ -144,7 +142,7 @@ func (o *object) Handle(inlet int, _ string, data []max.Atom) {
 
 	// smooth speeds
 	if o.filter2 > 0 {
-		posSpeed = utils.LerpVec3(o.posSpeed, posSpeed, o.filter2)
+		posSpeed = lerpVec3(o.posSpeed, posSpeed, o.filter2)
 		rotSpeed = mgl64.QuatLerp(o.rotSpeed, rotSpeed, o.filter2)
 	}
 
@@ -192,4 +190,16 @@ func (o *object) Free() {}
 
 func main() {
 	max.Register("perftrack", &object{})
+}
+
+func lerp(v1, v2, t float64) float64 {
+	return v1*(1-t) + v2*t
+}
+
+func lerpVec3(v1, v2 mgl64.Vec3, t float64) mgl64.Vec3 {
+	return mgl64.Vec3{
+		lerp(v1.X(), v2.X(), t),
+		lerp(v1.Y(), v2.Y(), t),
+		lerp(v1.Z(), v2.Z(), t),
+	}
 }
