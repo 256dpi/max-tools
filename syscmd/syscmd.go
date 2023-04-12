@@ -11,8 +11,6 @@ import (
 	"github.com/256dpi/max-go"
 	"github.com/google/shlex"
 	"github.com/kr/pretty"
-
-	"github.com/256dpi/max-tools/utils"
 )
 
 type object struct {
@@ -96,7 +94,7 @@ func (o *object) Handle(_ int, msg string, data []max.Atom) {
 	case "int":
 		// start/stop command
 		if len(data) > 0 {
-			if utils.Int(data[0]) > 0 {
+			if max.ToInt(data[0]) > 0 {
 				o.start()
 			} else {
 				o.stop()

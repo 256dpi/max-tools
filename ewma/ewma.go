@@ -6,8 +6,6 @@ import (
 
 	"github.com/256dpi/max-go"
 	"github.com/cloudflare/golibs/ewma"
-
-	"github.com/256dpi/max-tools/utils"
 )
 
 type object struct {
@@ -27,7 +25,7 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 	// get half life
 	halfLife := time.Second
 	if len(args) > 0 {
-		hl := utils.Int(args[0])
+		hl := max.ToInt(args[0])
 		if hl > 0 {
 			halfLife = time.Duration(hl) * time.Millisecond
 		}
@@ -47,7 +45,7 @@ func (o *object) Handle(_ int, _ string, data []max.Atom) {
 	// get value
 	var value float64
 	if len(data) > 0 {
-		value = utils.Float(data[0])
+		value = max.ToFloat(data[0])
 	}
 
 	// update ewma

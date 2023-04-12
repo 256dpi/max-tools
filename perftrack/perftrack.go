@@ -33,22 +33,22 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 
 	// get leap
 	if len(args) > 0 {
-		o.leap = utils.Float(args[0])
+		o.leap = max.ToFloat(args[0])
 	}
 
 	// get filter1
 	if len(args) > 1 {
-		o.filter1 = utils.Float(args[1])
+		o.filter1 = max.ToFloat(args[1])
 	}
 
 	// get filter1
 	if len(args) > 2 {
-		o.filter2 = utils.Float(args[2])
+		o.filter2 = max.ToFloat(args[2])
 	}
 
 	// get debug
 	if len(args) > 3 {
-		o.debug = utils.Int(args[3]) == 1
+		o.debug = max.ToInt(args[3]) == 1
 	}
 
 	// add inlet and outlets
@@ -72,16 +72,16 @@ func (o *object) Handle(inlet int, _ string, data []max.Atom) {
 	case 0:
 		// continue
 	case 1:
-		o.leap = utils.Float(data[0])
+		o.leap = max.ToFloat(data[0])
 		return
 	case 2:
-		o.filter1 = utils.Float(data[0])
+		o.filter1 = max.ToFloat(data[0])
 		return
 	case 3:
-		o.filter2 = utils.Float(data[0])
+		o.filter2 = max.ToFloat(data[0])
 		return
 	case 4:
-		o.debug = utils.Int(data[0]) == 1
+		o.debug = max.ToInt(data[0]) == 1
 		return
 	default:
 		max.Error("invalid inlet")
@@ -95,19 +95,19 @@ func (o *object) Handle(inlet int, _ string, data []max.Atom) {
 	}
 
 	// get time
-	time := utils.Float(data[0])
+	time := max.ToFloat(data[0])
 
 	// get position
-	px := utils.Float(data[1])
-	py := utils.Float(data[2])
-	pz := utils.Float(data[3])
+	px := max.ToFloat(data[1])
+	py := max.ToFloat(data[2])
+	pz := max.ToFloat(data[3])
 	pos := mgl64.Vec3{px, py, pz}
 
 	// get rotation
-	rw := utils.Float(data[4])
-	rx := utils.Float(data[5])
-	ry := utils.Float(data[6])
-	rz := utils.Float(data[7])
+	rw := max.ToFloat(data[4])
+	rx := max.ToFloat(data[5])
+	ry := max.ToFloat(data[6])
+	rz := max.ToFloat(data[7])
 	rot := mgl64.Quat{W: rw, V: mgl64.Vec3{rx, ry, rz}}
 
 	// debug
