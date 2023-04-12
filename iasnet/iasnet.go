@@ -4,16 +4,19 @@ import (
 	"errors"
 	"net"
 	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/256dpi/max-go"
 )
-
-// TODO: Add heartbeat.
 
 type object struct {
 	stats   *max.Outlet
 	local   *net.UDPConn
 	router  *net.UDPConn
+	done    chan struct{}
+	in      int64
+	out     int64
 	targets []*net.UDPAddr
 	mutex   sync.Mutex
 }
@@ -64,9 +67,13 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 	// create router socket
 	o.router, err = net.DialUDP("udp4", nil, router)
 
+	// create signal
+	o.done = make(chan struct{})
+
 	// handle sockets
 	go o.relay()
 	go o.distribute()
+	go o.manage()
 
 	return true
 }
@@ -90,6 +97,9 @@ func (o *object) relay() {
 		if err != nil {
 			max.Error("iasnet: %s", err.Error())
 		}
+
+		// increment counter
+		atomic.AddInt64(&o.in, int64(n))
 	}
 }
 
@@ -114,6 +124,36 @@ func (o *object) distribute() {
 				max.Error("iasnet: %s", err.Error())
 			}
 		}
+
+		// increment counter
+		atomic.AddInt64(&o.out, int64(n))
+	}
+}
+
+func (o *object) manage() {
+	// prepare heartbeat
+	hb := []byte{47, 104, 98, 0, 44, 0, 0, 0}
+
+	for {
+		// wait a bit
+		select {
+		case <-o.done:
+			return
+		case <-time.After(time.Second):
+		}
+
+		// send heartbeat
+		_, err := o.router.Write(hb)
+		if err != nil {
+			max.Error("iasnet: %s", err.Error())
+		}
+
+		// gather statistics
+		in := atomic.SwapInt64(&o.in, 0)
+		out := atomic.SwapInt64(&o.out, 0)
+
+		// send statistics
+		o.stats.List([]max.Atom{in, out})
 	}
 }
 
@@ -129,6 +169,9 @@ func (o *object) Free() {
 	// close sockets
 	_ = o.local.Close()
 	_ = o.router.Close()
+
+	// close signal
+	close(o.done)
 }
 
 func main() {
