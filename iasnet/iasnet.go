@@ -15,7 +15,6 @@ type object struct {
 	local   *net.UDPConn
 	router  *net.UDPConn
 	targets []*net.UDPAddr
-	closed  bool
 	mutex   sync.Mutex
 }
 
@@ -130,9 +129,6 @@ func (o *object) Free() {
 	// close sockets
 	_ = o.local.Close()
 	_ = o.router.Close()
-
-	// set flag
-	o.closed = true
 }
 
 func main() {
