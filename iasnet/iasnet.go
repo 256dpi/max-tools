@@ -63,9 +63,23 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 		max.Error("iasnet: %s", err.Error())
 		return false
 	}
+	err = adjustBuffers(o.local, 1<<20)
+	if err != nil {
+		max.Error("iasnet: %s", err.Error())
+		return false
+	}
 
 	// create router socket
 	o.router, err = net.DialUDP("udp4", nil, router)
+	if err != nil {
+		max.Error("iasnet: %s", err.Error())
+		return false
+	}
+	err = adjustBuffers(o.local, 1<<20)
+	if err != nil {
+		max.Error("iasnet: %s", err.Error())
+		return false
+	}
 
 	// create signal
 	o.done = make(chan struct{})
@@ -176,4 +190,20 @@ func (o *object) Free() {
 
 func main() {
 	max.Register("iasnet", &object{})
+}
+
+func adjustBuffers(conn *net.UDPConn, size int) error {
+	// set write buffer
+	err := conn.SetWriteBuffer(size)
+	if err != nil {
+		return err
+	}
+
+	// set read buffer
+	err = conn.SetReadBuffer(size)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

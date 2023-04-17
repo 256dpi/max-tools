@@ -21,6 +21,16 @@ func main() {
 		panic(err)
 	}
 
+	err = sock.SetWriteBuffer(1 << 20)
+	if err != nil {
+		panic(err)
+	}
+
+	err = sock.SetReadBuffer(1 << 20)
+	if err != nil {
+		panic(err)
+	}
+
 	buf := make([]byte, 1<<16) // 64k
 
 	for {
