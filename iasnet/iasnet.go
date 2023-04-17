@@ -12,18 +12,21 @@ import (
 
 type object struct {
 	stats   *max.Outlet
+	dump    *max.Outlet
 	targets []*net.UDPAddr
 	local   *net.UDPConn
 	router  *net.UDPConn
 	done    chan struct{}
 	in      int64
 	out     int64
+	errMap  map[string]int64
 	mutex   sync.Mutex
 }
 
 func (o *object) Init(obj *max.Object, args []max.Atom) bool {
-	// add outlet
+	// add outlets
 	o.stats = obj.Outlet(max.List, "bytes received/sent")
+	o.dump = obj.Outlet(max.List, "dump messages")
 
 	// check args
 	if len(args) < 5 || len(args)%2 != 1 {
@@ -103,13 +106,13 @@ func (o *object) relay() {
 			if errors.Is(err, net.ErrClosed) {
 				return
 			}
-			max.Error("iasnet: %s", err.Error())
+			o.incError(err)
 		}
 
 		// relay message
 		_, err = o.router.Write(buf[:n])
 		if err != nil {
-			max.Error("iasnet: %s", err.Error())
+			o.incError(err)
 		}
 
 		// increment counter
@@ -128,14 +131,14 @@ func (o *object) distribute() {
 			if errors.Is(err, net.ErrClosed) {
 				return
 			}
-			max.Error("iasnet: %s", err.Error())
+			o.incError(err)
 		}
 
 		// distribute message
 		for _, target := range o.targets {
 			_, err = o.local.WriteToUDP(buf[:n], target)
 			if err != nil {
-				max.Error("iasnet: %s", err.Error())
+				o.incError(err)
 			}
 		}
 
@@ -168,6 +171,17 @@ func (o *object) manage() {
 
 		// send statistics
 		o.stats.List([]max.Atom{in, out})
+
+		// get errors
+		o.mutex.Lock()
+		errMap := o.errMap
+		o.errMap = map[string]int64{}
+		o.mutex.Unlock()
+
+		// send errors
+		for str, num := range errMap {
+			o.dump.List([]max.Atom{"error", str, num})
+		}
 	}
 }
 
@@ -186,6 +200,13 @@ func (o *object) Free() {
 
 	// close signal
 	close(o.done)
+}
+
+func (o *object) incError(err error) {
+	// increment error
+	o.mutex.Lock()
+	o.errMap[err.Error()]++
+	o.mutex.Unlock()
 }
 
 func main() {
