@@ -75,7 +75,7 @@ func (o *object) Init(obj *max.Object, args []max.Atom) bool {
 		max.Error("iasnet: %s", err.Error())
 		return false
 	}
-	err = adjustBuffers(o.local, 1<<20)
+	err = adjustBuffers(o.router, 1<<20)
 	if err != nil {
 		max.Error("iasnet: %s", err.Error())
 		return false
