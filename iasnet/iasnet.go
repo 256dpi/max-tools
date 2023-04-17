@@ -162,7 +162,7 @@ func (o *object) manage() {
 		// send heartbeat
 		_, err := o.router.Write(hb)
 		if err != nil {
-			max.Error("iasnet: %s", err.Error())
+			o.incError(err)
 		}
 
 		// gather statistics
