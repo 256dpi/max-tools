@@ -12,12 +12,12 @@ import (
 
 type object struct {
 	stats   *max.Outlet
+	targets []*net.UDPAddr
 	local   *net.UDPConn
 	router  *net.UDPConn
 	done    chan struct{}
 	in      int64
 	out     int64
-	targets []*net.UDPAddr
 	mutex   sync.Mutex
 }
 
